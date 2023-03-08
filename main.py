@@ -130,9 +130,8 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.inline_query.answer(results)
 
 if __name__ == '__main__':
-    application = ApplicationBuilder().token('5786788456:AAEEDtaXpker8TaTmqZaSJkcKw5WHs3TSo4'
+    application = ApplicationBuilder().token('TOKEN'
         ).build()
-    #'5772643402:AAGCk43NQFjIAoKcLTEDfo0bCUQtluAwNiI'
     application.add_handler(CallbackQueryHandler(get_keyboad_reply, block=False))
     application.add_handler(CommandHandler(['start', 'help'], start, block=False))
     application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), recieve_message, block=False))
