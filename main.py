@@ -152,7 +152,7 @@ async def inline_download(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 if __name__ == '__main__':
     application = ApplicationBuilder().token(
-        '5786788456:AAEEDtaXpker8TaTmqZaSJkcKw5WHs3TSo4').build()
+        'TOKEN').build()
     application.add_handler(CallbackQueryHandler(get_keyboad_reply, block=False))
     application.add_handler(CommandHandler(['start', 'help'], start, block=False))
     application.add_handler(CommandHandler('id', inline_download, block=False))
