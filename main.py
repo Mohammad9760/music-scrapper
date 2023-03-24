@@ -8,6 +8,7 @@ from telegram.ext import (
 )
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 import search
+import recognizer as Recognizer
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -106,7 +107,7 @@ async def get_keyboad_reply(update: Update, context, optional_pram = None):
         return
     elif message.startswith('a_'):
         message, info_filter = message[2:message.rindex(':')], message[message.rindex(':') + 1:]
-        text, results, _ = search.get_artist(message, info_filter)
+        text, results = search.get_artist(message, info_filter)
         buttons = [[InlineKeyboardButton(title , callback_data= data)] for (title, data) in results]
         await context.bot.send_message(chat_id=chat_id, text=text, reply_markup=InlineKeyboardMarkup(buttons))
 
@@ -114,10 +115,22 @@ async def get_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """recives voice messages and tries to recognize it"""
     audio_file = await context.bot.get_file(update.message.voice.file_id)
     await audio_file.download_to_drive(update.message.voice.file_id + '.ogg')
-    await context.bot.send_message(update.effective_chat.id, 'No Match Found')
+    await context.bot.send_message(update.effective_chat.id, 'listening...')
+    try:
+        with open(update.message.voice.file_id + '.ogg', mode='rb') as excerpt_data:
+            song = Recognizer.recognize_API(excerpt_data.read())
+
+            if song is not None:
+                await context.bot.send_photo(update.effective_chat.id, song.thumbnail_url, '{} - {}'.format(song.title, song.author))
+            else:
+                await context.bot.send_message(update.effective_chat.id, 'No Match Found')
+            os.remove(update.message.voice.file_id + '.ogg')
+    except Exception as exception:
+        logging.error(exception)
+
 
 async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """this is the inline mode when you type the @username of the bot"""
+    """inline search mode for groups"""
     query = update.inline_query.query
 
     if query == '':
@@ -152,7 +165,7 @@ async def inline_download(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 if __name__ == '__main__':
     application = ApplicationBuilder().token(
-        'TOKEN').build()
+        '5786788456:AAEEDtaXpker8TaTmqZaSJkcKw5WHs3TSo4').build()
     application.add_handler(CallbackQueryHandler(get_keyboad_reply, block=False))
     application.add_handler(CommandHandler(['start', 'help'], start, block=False))
     application.add_handler(CommandHandler('id', inline_download, block=False))

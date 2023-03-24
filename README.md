@@ -1,4 +1,4 @@
-## Music Scrappy Bot on Telegram
+# Music Scrappy Bot on Telegram
 This is the source code of my Telegram music downloader bot t.me/musicscrappybot
 the bot is in active development and has not been deployed /hosted on a server yet.
 
@@ -9,8 +9,7 @@ to deploy the bot on a server use pip install requirements.txt to install all th
 if you wish to contribute to this project below is a list of unimplemented features and known issues, pull requests are welcome and if you find a bug you can open an issue
 
 ## To do:
--recognize songs from voice sample
--sponsor channel
+-sponsor channel\n
 -user selects language
 
 ## Known Issues

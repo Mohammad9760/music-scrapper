@@ -20,9 +20,6 @@ def query(prompt, search_filter):
     #     case 'songs':
     #         for result in search_results:
     #             try:
-
-
-
     #                 if(words_re.search(result['artists']['name']) or words_re.search(result['title'])):
     #                     continue
     #                 result_list.append(('"{}" - {}'.format(result['title'], result['artists'][0]['name']) ,'dl_' + result['videoId']))
@@ -56,7 +53,7 @@ def query(prompt, search_filter):
     try:
         match search_filter:
             case 'songs':
-                result_list = [('"{}" - {}'.format(result['title'], result['artists'][0]['name']) ,'dl_' + result['videoId']) for result in search_results if not ((words_re.search(result['artists']['name']) or words_re.search(result['title'])))]
+                result_list = [('"{}" - {}'.format(result['title'], result['artists'][0]['name']) ,'dl_' + result['videoId']) for result in search_results]# if(words_re.search(result['artists']['name']) or words_re.search(result['title']))]
 
             case 'albums':
                 result_list = [('"{}" - {}'.format(result['title'], result['artists'][0]['name']), 'album_' + result['browseId']) for result in search_results if result['resultType'] == 'album']
