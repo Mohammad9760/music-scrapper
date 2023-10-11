@@ -9,8 +9,9 @@ to deploy the bot on a server use pip install requirements.txt to install all th
 if you wish to contribute to this project below is a list of unimplemented features and known issues, pull requests are welcome and if you find a bug you can open an issue
 
 ## To do:
--sponsor channel\n
--user selects language
+-sponsor channel<br>
+-add support for spotify links
+-setup webhook
 
 ## Known Issues
 -if the user input is too long it causes a BadRequest

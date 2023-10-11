@@ -5,6 +5,7 @@ import download
 
 ytmusic = YTMusic()
 
+
 def query(prompt, search_filter):
     """returns search results from youtube as a dict"""
     result_list = []
@@ -112,3 +113,15 @@ def get_artist(browse_id, info='profile'):
         except Exception as exception:
             print(exception)
         return '{}\'s {}: '.format(artist['name'], info), result_list
+
+def get_new_released_songs():
+    playlist = ytmusic.get_playlist('RDCLAK5uy_k5n4srrEB1wgvIjPNTXS9G1ufE9WQxhnA')
+    songs = []
+    for track in playlist['tracks']:
+        # if the type is a music video we search again filtering for songs
+        if track['videoType'] == 'MUSIC_VIDEO_TYPE_OMV':
+            result = ytmusic.search(track['title'] + ' by ' + track['artists'][0]['name'], 'songs', limit=1)
+            track = result[0]
+        songs.append((str(track['title'] + '-' + track['artists'][0]['name']), 'dl_' + track['videoId']))
+
+    return songs

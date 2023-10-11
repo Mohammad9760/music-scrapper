@@ -33,19 +33,27 @@ def add_user_to_database(user_id):
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """adds new users to users database"""
-    await context.bot.send_message(update.effective_chat.id,
-     """you can use me to donwload any song from the web!
-you can search for songs, albums and artists by just sending the name or a part of the lyrics!
-in groups you can use the inline search mode by typing @ and selecting my username
-if you have any questions or suggestions hit me @peanut_wigglebutt"""
-     )
     chat_id = update.effective_chat.id
     if chat_id not in users:
         add_user_to_database(chat_id)
+    await context.bot.send_message(chat_id, 
+"""
+I can help you find any song from the web!
+you can search for songs, artists and albums just by sending me a the title of the song/album or the name of the artist or even
+part of the lyrics!
+in groups you can use the inline mode by typing a @ and selecting me from the list and typing the name of the song after a space.
+you can also find songs that you don't know with a 10-second voice sample.
+""")
+
+async def released_charts(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    songs = search.get_new_released_songs()
+    buttons = [[InlineKeyboardButton(title , callback_data= data)] for (title, data) in songs]
+    await context.bot.send_message(update.effective_chat.id, text='Realesed Songs' ,reply_markup= InlineKeyboardMarkup(buttons))
 
 async def recieve_message(update: Update, context):
     """asking user what to search for"""
     if update.effective_chat.type != 'private': # there's the inline mode for groups
+        await context.bot.send_message(chat_id = update.message.chat_id, text= update.message.chat_id)
         return
     message = 'q_' + update.message.text
     buttons = [[InlineKeyboardButton('🎧 Songs', callback_data=message + ':songs'),
@@ -119,15 +127,16 @@ async def get_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         with open(update.message.voice.file_id + '.ogg', mode='rb') as excerpt_data:
             song = Recognizer.recognize_API(excerpt_data.read())
-
+            _, id = search.query(song.title + '-' + song.author, 'songs')[0]
+            button = [[InlineKeyboardButton('Download', None, id)]]
             if song is not None:
-                await context.bot.send_photo(update.effective_chat.id, song.thumbnail_url, '{} - {}'.format(song.title, song.author))
+                await context.bot.send_photo(update.effective_chat.id, song.thumbnail_url, '{} - {}'.format(song.title, song.author)
+                                                    , reply_markup=InlineKeyboardMarkup(button))
             else:
                 await context.bot.send_message(update.effective_chat.id, 'No Match Found')
             os.remove(update.message.voice.file_id + '.ogg')
     except Exception as exception:
         logging.error(exception)
-
 
 async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """inline search mode for groups"""
@@ -168,6 +177,7 @@ if __name__ == '__main__':
         '5786788456:AAEEDtaXpker8TaTmqZaSJkcKw5WHs3TSo4').build()
     application.add_handler(CallbackQueryHandler(get_keyboad_reply, block=False))
     application.add_handler(CommandHandler(['start', 'help'], start, block=False))
+    application.add_handler(CommandHandler('released', released_charts, block=False))
     application.add_handler(CommandHandler('id', inline_download, block=False))
     application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), recieve_message, block=False))
     application.add_handler(MessageHandler(filters.VOICE , get_voice))

@@ -3,6 +3,7 @@ import re
 import urllib.request  # for saving the song cover file
 import requests
 from bs4 import BeautifulSoup
+from collections import Counter
 from yt_dlp import YoutubeDL
 import music_tag  # for adding meta data
 from ytmusicapi import YTMusic  # for finding the song
@@ -84,6 +85,7 @@ def download_song(video_id):
     file['title'] = song['videoDetails']['title']
     file['artist'] = song['videoDetails']['author']
     file['genre'] = get_song_genre(song['videoDetails']['title'], song['videoDetails']['author'])
+    print(get_song_genre(song['videoDetails']['title'], song['videoDetails']['author']))
     del file['artwork']
     file['year'], file['album'] = get_year_album(video_id)
     file['artwork'], cover_path = get_covert_art(song)
@@ -94,14 +96,26 @@ def download_song(video_id):
     return new_file
 
 Genres = {
-    'Rock' : 0,
-    'Pop' : 0,
-    'Blues' : 0,
-    'Hip-hop' : 0,
-    'Rap' : 0,
-    'Country' : 0,
-    'Jazz' : 0,
-    'House' : 0
+    'rock': 0,
+    'pop': 0,
+    'jazz': 0,
+    'hip hop': 0,
+    'country': 0,
+    'classical': 0,
+    'blues': 0,
+    'metal': 0,
+    'electronic': 0,
+    'folk': 0,
+    'reggae': 0,
+    'latin': 0,
+    'soul': 0,
+    'punk': 0,
+    'r&b': 0,
+    'world music': 0,
+    'new age': 0,
+    'instrumental': 0,
+    'rap': 0,
+    'house': 0
 }
 
 def get_song_genre(song_name ,artist_name):
@@ -114,10 +128,11 @@ def get_song_genre(song_name ,artist_name):
     # make the HTTP request and get the HTML content
     response = requests.get(url, timeout= 5000)
     content = response.content
-
+    genres = Genres.copy()
     # parse the HTML content with BeautifulSoup
     soup = BeautifulSoup(content, "html.parser")
-    for genre in Genres:
-        Genres[genre] = len(soup.body.findAll(text=re.compile(genre)))
-
-    return max(Genres, key=Genres.get)
+    for genre in genres:
+        genres[genre] = soup.get_text().lower().count(genre)
+        # genres[genre] = len(soup.body.findAll(text=re.compile(genre)))
+    print(genres)
+    return max(genres, key=genres.get)
